@@ -1,9 +1,8 @@
 package cn.bingoogolapple.androidcommon.adapter.demo.adapter;
 
 import android.content.Context;
-import android.net.Uri;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 
 import cn.bingoogolapple.androidcommon.adapter.BGAAdapterViewAdapter;
 import cn.bingoogolapple.androidcommon.adapter.BGAViewHolderHelper;
@@ -16,6 +15,7 @@ import cn.bingoogolapple.androidcommon.adapter.demo.mode.NormalModel;
  * 描述:
  */
 public class NormalAdapterViewAdapter extends BGAAdapterViewAdapter<NormalModel> {
+    private boolean mIsIgnoreChange = true;
 
     public NormalAdapterViewAdapter(Context context) {
         super(context, R.layout.item_normal);
@@ -25,12 +25,21 @@ public class NormalAdapterViewAdapter extends BGAAdapterViewAdapter<NormalModel>
     protected void setItemChildListener(BGAViewHolderHelper viewHolderHelper) {
         viewHolderHelper.setItemChildClickListener(R.id.tv_item_normal_delete);
         viewHolderHelper.setItemChildLongClickListener(R.id.tv_item_normal_delete);
+        viewHolderHelper.setItemChildCheckedChangeListener(R.id.cb_item_normal_status);
     }
 
     @Override
     public void fillData(BGAViewHolderHelper viewHolderHelper, int position, NormalModel model) {
+        Glide.with(mContext).load(model.avatorPath).placeholder(R.mipmap.holder).error(R.mipmap.holder).into(viewHolderHelper.getImageView(R.id.iv_item_normal_avator));
         viewHolderHelper.setText(R.id.tv_item_normal_title, model.title).setText(R.id.tv_item_normal_detail, model.detail);
-        SimpleDraweeView avatorSdv = viewHolderHelper.getView(R.id.sdv_item_normal_avator);
-        avatorSdv.setImageURI(Uri.parse(model.avatorPath));
+
+        // 在设置值的过程中忽略选中状态变化
+        mIsIgnoreChange = true;
+        viewHolderHelper.setChecked(R.id.cb_item_normal_status, model.selected);
+        mIsIgnoreChange = false;
+    }
+
+    public boolean isIgnoreChange() {
+        return mIsIgnoreChange;
     }
 }

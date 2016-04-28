@@ -1,13 +1,12 @@
 package cn.bingoogolapple.androidcommon.adapter.demo.adapter;
 
-import android.net.Uri;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.bumptech.glide.Glide;
 
 import cn.bingoogolapple.androidcommon.adapter.BGARecyclerViewAdapter;
 import cn.bingoogolapple.androidcommon.adapter.BGAViewHolderHelper;
@@ -21,6 +20,7 @@ import cn.bingoogolapple.androidcommon.adapter.demo.mode.NormalModel;
  */
 public class NormalRecyclerViewAdapter extends BGARecyclerViewAdapter<NormalModel> {
     private ItemTouchHelper mItemTouchHelper;
+    private boolean mIsIgnoreChange = true;
 
     public NormalRecyclerViewAdapter(RecyclerView recyclerView) {
         super(recyclerView, R.layout.item_normal);
@@ -34,7 +34,8 @@ public class NormalRecyclerViewAdapter extends BGARecyclerViewAdapter<NormalMode
     public void setItemChildListener(final BGAViewHolderHelper viewHolderHelper) {
         viewHolderHelper.setItemChildClickListener(R.id.tv_item_normal_delete);
         viewHolderHelper.setItemChildLongClickListener(R.id.tv_item_normal_delete);
-        viewHolderHelper.getView(R.id.sdv_item_normal_avator).setOnTouchListener(new View.OnTouchListener() {
+        viewHolderHelper.setItemChildCheckedChangeListener(R.id.cb_item_normal_status);
+        viewHolderHelper.getView(R.id.iv_item_normal_avator).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
@@ -47,8 +48,16 @@ public class NormalRecyclerViewAdapter extends BGARecyclerViewAdapter<NormalMode
 
     @Override
     public void fillData(BGAViewHolderHelper viewHolderHelper, int position, NormalModel model) {
+        Glide.with(mContext).load(model.avatorPath).placeholder(R.mipmap.holder).error(R.mipmap.holder).into(viewHolderHelper.getImageView(R.id.iv_item_normal_avator));
         viewHolderHelper.setText(R.id.tv_item_normal_title, model.title).setText(R.id.tv_item_normal_detail, model.detail);
-        SimpleDraweeView avatorSdv = viewHolderHelper.getView(R.id.sdv_item_normal_avator);
-        avatorSdv.setImageURI(Uri.parse(model.avatorPath));
+
+        // 在设置值的过程中忽略选中状态变化
+        mIsIgnoreChange = true;
+        viewHolderHelper.setChecked(R.id.cb_item_normal_status, model.selected);
+        mIsIgnoreChange = false;
+    }
+
+    public boolean isIgnoreChange() {
+        return mIsIgnoreChange;
     }
 }
